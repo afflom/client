@@ -31,7 +31,7 @@ func buildHelper(ctx context.Context, g *graph.Graph, userSpace, renderSpace wor
 	}
 
 	// Template and hash each child node to
-	// calculate parent not information
+	// calculate parent node information
 	for _, n := range start.Nodes {
 		if _, found := links[n.Name]; found {
 			continue
@@ -42,8 +42,8 @@ func buildHelper(ctx context.Context, g *graph.Graph, userSpace, renderSpace wor
 	}
 
 	start.Links = mergeLinkData(start.Links, links)
-
 	buf := new(bytes.Buffer)
+
 	if start.Template != (template.Template{}) {
 		if err := start.Template.Execute(buf, start.Links); err != nil {
 			return err
@@ -67,7 +67,6 @@ func buildHelper(ctx context.Context, g *graph.Graph, userSpace, renderSpace wor
 
 	templateValue := parser.ConvertFilenameForGoTemplateValue(start.Name)
 	links[templateValue] = dgst
-
 	return nil
 }
 
@@ -75,7 +74,8 @@ func buildHelper(ctx context.Context, g *graph.Graph, userSpace, renderSpace wor
 // the currently calculated values.
 func mergeLinkData(in, curr map[string]interface{}) map[string]interface{} {
 	for key := range in {
-		currentVal, ok := curr[key]
+		fmtVal := parser.ConvertFilenameForGoTemplateValue(in[key].(string))
+		currentVal, ok := curr[fmtVal]
 		if ok {
 			in[key] = currentVal
 		}
